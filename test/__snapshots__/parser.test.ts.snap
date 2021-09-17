@@ -6,6 +6,10 @@ Object {
   "canvasWidth": 980,
   "colorSchema": "auto",
   "download": false,
+  "drawings": Object {
+    "enabled": true,
+    "persist": false,
+  },
   "fonts": Object {
     "italic": false,
     "local": Array [],
@@ -65,7 +69,7 @@ Object {
   "layout": "cover",
   "lineNumbers": false,
   "monaco": "dev",
-  "remoteAssets": true,
+  "remoteAssets": false,
   "routerMode": "history",
   "selectable": false,
   "theme": "default",
@@ -218,6 +222,10 @@ Object {
   "canvasWidth": 980,
   "colorSchema": "auto",
   "download": false,
+  "drawings": Object {
+    "enabled": true,
+    "persist": false,
+  },
   "fonts": Object {
     "italic": false,
     "local": Array [],
@@ -267,7 +275,7 @@ Object {
   "info": false,
   "lineNumbers": false,
   "monaco": "dev",
-  "remoteAssets": true,
+  "remoteAssets": false,
   "routerMode": "history",
   "selectable": false,
   "theme": "default",
@@ -373,6 +381,10 @@ Object {
   "canvasWidth": 980,
   "colorSchema": "auto",
   "download": false,
+  "drawings": Object {
+    "enabled": true,
+    "persist": false,
+  },
   "fonts": Object {
     "italic": false,
     "local": Array [],
@@ -422,7 +434,7 @@ Object {
   "info": false,
   "lineNumbers": false,
   "monaco": "dev",
-  "remoteAssets": true,
+  "remoteAssets": false,
   "routerMode": "history",
   "selectable": false,
   "src": "sub/page1.md",

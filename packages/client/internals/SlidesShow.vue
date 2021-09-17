@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { currentRoute, clicks, rawRoutes, nextRoute } from '../logic/nav'
+import { shallowRef, watch } from 'vue'
+import { currentRoute, clicks, rawRoutes, nextRoute, isPresenter } from '../logic/nav'
 import { getSlideClass } from '../utils'
 import SlideWrapper from './SlideWrapper'
 // @ts-ignore
 import GlobalTop from '/@slidev/global-components/top'
 // @ts-ignore
 import GlobalBottom from '/@slidev/global-components/bottom'
+import PresenterMouse from './PresenterMouse.vue'
 
 // preload next route
 watch(currentRoute, () => {
@@ -15,6 +16,10 @@ watch(currentRoute, () => {
   if (nextRoute.value?.meta && nextRoute.value.meta.preload !== false)
     nextRoute.value.meta.__preloaded = true
 }, { immediate: true })
+
+const DrawingLayer = shallowRef<any>()
+if (__SLIDEV_FEATURE_DRAWINGS__ || __SLIDEV_FEATURE_DRAWINGS_PERSIST__)
+  import('./DrawingLayer.vue').then(v => DrawingLayer.value = v.default)
 </script>
 
 <template>
@@ -36,4 +41,9 @@ watch(currentRoute, () => {
 
   <!-- Global Top -->
   <GlobalTop />
+
+  <template v-if="(__SLIDEV_FEATURE_DRAWINGS__ || __SLIDEV_FEATURE_DRAWINGS_PERSIST__) && DrawingLayer">
+    <DrawingLayer />
+  </template>
+  <PresenterMouse v-if="!isPresenter" />
 </template>

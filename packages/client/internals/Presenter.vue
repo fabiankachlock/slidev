@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head'
-import { ref, computed } from 'vue'
-import { useTimestamp } from '@vueuse/core'
+import { ref, computed, reactive, watch, onMounted } from 'vue'
+import { useMouse, useWindowFocus } from '@vueuse/core'
 import { total, currentPage, currentRoute, nextRoute, clicks, useSwipeControls, clicksTotal, hasNext } from '../logic/nav'
-import { showOverview } from '../state'
-import { configs, themeVars } from '../env'
+import { showOverview, showPresenterCursor } from '../state'
+import { configs, themeVars, serverState } from '../env'
 import { registerShortcuts } from '../logic/shortcuts'
 import { getSlideClass } from '../utils'
+import { useTimer } from '../logic/utils'
+import { isDrawing } from '../logic/drawings'
 import SlideContainer from './SlideContainer.vue'
 import NavControls from './NavControls.vue'
 import SlidesOverview from './SlidesOverview.vue'
@@ -14,30 +16,20 @@ import NoteEditor from './NoteEditor.vue'
 import Goto from './Goto.vue'
 import SlidesShow from './SlidesShow.vue'
 import SlideWrapper from './SlideWrapper'
+import DrawingControls from './DrawingControls.vue'
+
+const main = ref<HTMLDivElement>()
 
 registerShortcuts()
+useSwipeControls(main)
 
 const slideTitle = configs.titleTemplate.replace('%s', configs.title || 'Slidev')
 useHead({
   title: `Presenter - ${slideTitle}`,
 })
 
-const tsStart = ref(Date.now())
-const now = useTimestamp({
-  interval: 1000,
-})
-const timer = computed(() => {
-  const passed = (now.value - tsStart.value) / 1000
-  const sec = Math.floor(passed % 60).toString().padStart(2, '0')
-  const min = Math.floor(passed / 60).toString().padStart(2, '0')
-  return `${min}:${sec}`
-})
+const { timer, resetTimer } = useTimer()
 
-function resetTimer() {
-  tsStart.value = now.value
-}
-
-const main = ref<HTMLDivElement>()
 const nextTabElements = ref([])
 const nextSlide = computed(() => {
   if (clicks.value < clicksTotal.value) {
@@ -59,7 +51,31 @@ const nextSlide = computed(() => {
   }
 })
 
-useSwipeControls(main)
+// sync presenter cusor
+onMounted(() => {
+  const slidesContainer = main.value!.querySelector('#slide-content')!
+  const mouse = reactive(useMouse())
+  const focus = useWindowFocus()
+
+  watch(
+    () => {
+      if (!focus.value || isDrawing.value || !showPresenterCursor.value)
+        return undefined
+
+      const rect = slidesContainer.getBoundingClientRect()
+      const x = (mouse.x - rect.left) / rect.width * 100
+      const y = (mouse.y - rect.top) / rect.height * 100
+
+      if (x < 0 || x > 100 || y < 0 || y > 100)
+        return undefined
+
+      return { x, y }
+    },
+    (pos) => {
+      serverState.cursor = pos
+    },
+  )
+})
 </script>
 
 <template>
@@ -109,8 +125,9 @@ useSwipeControls(main)
         <NoteEditor class="w-full h-full p-4 overflow-auto" />
       </div>
       <div class="grid-section bottom">
-        <NavControls />
+        <NavControls :persist="true" />
       </div>
+      <DrawingControls v-if="__SLIDEV_FEATURE_DRAWINGS__" />
     </div>
     <div class="progress-bar">
       <div

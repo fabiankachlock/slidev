@@ -1,19 +1,21 @@
 
 import { Plugin } from 'vite'
 import Vue from '@vitejs/plugin-vue'
-import ViteIcons, { ViteIconsResolver } from 'vite-plugin-icons'
-import ViteComponents from 'vite-plugin-components'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Components from 'unplugin-vue-components/vite'
 import RemoteAssets, { DefaultRules } from 'vite-plugin-remote-assets'
+import ServerRef from 'vite-plugin-vue-server-ref'
 import { notNullish } from '@antfu/utils'
 import { ResolvedSlidevOptions, SlidevPluginOptions, SlidevServerOptions } from '../options'
-import { createConfigPlugin } from './config'
+import { loadDrawings, writeDarwings } from '../drawings'
+import { createConfigPlugin } from './extendConfig'
 import { createSlidesLoader } from './loaders'
-import { createMonacoTypesLoader } from './monaco'
+import { createMonacoTypesLoader } from './monacoTransform'
 import { createClientSetupPlugin } from './setupClient'
-import VitePluginServerRef from './server-ref'
 import { createMarkdownPlugin } from './markdown'
 import { createWindiCSSPlugin } from './windicss'
-import { createFixPlugins } from './fix'
+import { createFixPlugins } from './patchTransform'
 
 const customElements = new Set([
   // katex
@@ -72,6 +74,8 @@ export async function ViteSlidevPlugin(
 
   const MarkdownPlugin = await createMarkdownPlugin(options, pluginOptions)
 
+  const drawingData = await loadDrawings(options)
+
   return [
     await createWindiCSSPlugin(options, pluginOptions),
     MarkdownPlugin,
@@ -79,7 +83,7 @@ export async function ViteSlidevPlugin(
 
     createSlidesLoader(options, pluginOptions, serverOptions, VuePlugin, MarkdownPlugin),
 
-    ViteComponents({
+    Components({
       extensions: ['vue', 'md', 'ts'],
 
       dirs: [
@@ -90,17 +94,21 @@ export async function ViteSlidevPlugin(
         'components',
       ],
 
-      customLoaderMatcher: id => id.endsWith('.md'),
-      customComponentResolvers: [
-        ViteIconsResolver({
-          componentPrefix: '',
+      include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
+      exclude: [],
+
+      resolvers: [
+        IconsResolver({
+          prefix: '',
+          customCollections: Object.keys(iconsOptions.customCollections || []),
         }),
       ],
 
       ...componentsOptions,
     }),
 
-    ViteIcons({
+    Icons({
+      defaultClass: 'slidev-icon',
       ...iconsOptions,
     }),
 
@@ -119,15 +127,24 @@ export async function ViteSlidevPlugin(
       })
       : null,
 
-    VitePluginServerRef({
-      dataMap: {
+    ServerRef({
+      debug: process.env.NODE_ENV === 'development',
+      state: {
         sync: false,
-        state: {
+        nav: {
           page: 0,
           clicks: 0,
         },
+        drawings: drawingData,
+      },
+      onChanged(key, data, patch) {
+        if (!options.data.config.drawings.persist)
+          return
+        if (key === 'drawings')
+          writeDarwings(options, patch ?? data)
       },
     }),
+
     createConfigPlugin(options),
     createClientSetupPlugin(options),
     createMonacoTypesLoader(),

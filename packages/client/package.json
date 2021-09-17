@@ -1,10 +1,9 @@
 {
   "name": "@slidev/client",
-  "version": "0.22.7",
-  "engines": {
-    "node": ">=14.0.0"
-  },
+  "version": "0.25.1",
   "description": "Presentation slides for developers",
+  "homepage": "https://sli.dev",
+  "bugs": "https://github.com/slidevjs/slidev/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,29 +11,31 @@
   },
   "funding": "https://github.com/sponsors/antfu",
   "author": "antfu <anthonyfu117@hotmail.com>",
-  "homepage": "https://sli.dev",
-  "bugs": "https://github.com/slidevjs/slidev/issues",
   "dependencies": {
-    "@antfu/utils": "^0.2.4",
+    "@antfu/utils": "^0.3.0",
     "@slidev/parser": "workspace:*",
     "@slidev/types": "workspace:*",
-    "@vueuse/core": "^5.1.4",
+    "@vueuse/core": "^6.4.0",
     "@vueuse/head": "^0.6.0",
-    "@vueuse/motion": "^1.5.6",
-    "codemirror": "^5.62.2",
+    "@vueuse/motion": "^1.6.0",
+    "codemirror": "^5.62.3",
+    "drauu": "^0.1.2",
     "file-saver": "^2.0.5",
-    "js-base64": "^3.6.1",
+    "js-base64": "^3.7.1",
     "js-yaml": "^4.1.0",
-    "katex": "^0.13.13",
-    "mermaid": "8.5.0",
-    "monaco-editor": "^0.26.1",
-    "nanoid": "^3.1.23",
-    "prettier": "^2.3.2",
+    "katex": "^0.13.18",
+    "mermaid": "^8.12.1",
+    "monaco-editor": "^0.27.0",
+    "nanoid": "^3.1.25",
+    "prettier": "^2.4.1",
     "recordrtc": "^5.6.2",
     "resolve": "^1.20.0",
-    "vite-plugin-windicss": "^1.2.5",
-    "vue": "^3.1.5",
-    "vue-router": "^4.0.10",
-    "windicss": "^3.1.5"
+    "vite-plugin-windicss": "^1.4.3",
+    "vue": "^3.2.12",
+    "vue-router": "^4.0.11",
+    "windicss": "^3.1.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

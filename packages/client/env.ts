@@ -1,9 +1,23 @@
 import { SlidevConfig } from '@slidev/types'
 import { computed } from 'vue'
 import { objectMap } from '@antfu/utils'
-// @ts-ignore
+// @ts-expect-error
 import _configs from '/@slidev/configs'
+import _serverState from 'server-reactive:nav'
+import _serverDrawingState from 'server-reactive:drawings?diff'
+import type { ServerReactive } from 'vite-plugin-vue-server-ref'
 
+export interface ServerState {
+  page: number
+  clicks: number
+  cursor?: {
+    x: number
+    y: number
+  }
+}
+
+export const serverState = _serverState as ServerReactive<ServerState>
+export const serverDrawingState = _serverDrawingState as ServerReactive<Record<number, string | undefined>>
 export const configs = _configs as SlidevConfig
 
 export const slideAspect = configs.aspectRatio ?? (16 / 9)

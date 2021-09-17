@@ -1,10 +1,9 @@
 {
   "name": "create-slidev",
-  "version": "0.22.7",
-  "engines": {
-    "node": ">=14.0.0"
-  },
+  "version": "0.25.1",
   "description": "Create starter template for Slidev",
+  "homepage": "https://sli.dev",
+  "bugs": "https://github.com/slidevjs/slidev/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,12 +15,17 @@
   "bin": {
     "create-slidev": "index.js"
   },
-  "homepage": "https://sli.dev",
-  "bugs": "https://github.com/slidevjs/slidev/issues",
+  "scripts": {
+    "build": "cp ../../demo/starter/slides.md template/slides.md",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
     "execa": "^5.1.1",
     "kolorist": "^1.5.0",
     "minimist": "^1.2.5",
     "prompts": "^2.4.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

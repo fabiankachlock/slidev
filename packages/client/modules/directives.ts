@@ -1,18 +1,10 @@
-import { App, DirectiveBinding, InjectionKey, Ref, watch } from 'vue'
+import { App, DirectiveBinding, InjectionKey, watch } from 'vue'
 import { remove } from '@antfu/utils'
 import { isPrintMode, isPrintWithClicks } from '../logic/nav'
-
-export const injectionClicks: InjectionKey<Ref<number>> = Symbol('v-click-clicks')
-export const injectionClicksElements: InjectionKey<Ref<(Element | string)[]>> = Symbol('v-click-clicks-elements')
-export const injectionOrderMap: InjectionKey<Ref<Map<number, HTMLElement[]>>> = Symbol('v-click-clicks-order-map')
-export const injectionClicksDisabled: InjectionKey<Ref<boolean>> = Symbol('v-click-clicks-disabled')
-
-export const CLASS_VCLICK_TARGET = 'slidev-vclick-target'
-export const CLASS_VCLICK_HIDDEN = 'slidev-vclick-hidden'
-export const CLASS_VCLICK_GONE = 'slidev-vclick-gone'
-export const CLASS_VCLICK_HIDDEN_EXP = 'slidev-vclick-hidden-explicitly'
-export const CLASS_VCLICK_CURRENT = 'slidev-vclick-current'
-export const CLASS_VCLICK_PRIOR = 'slidev-vclick-prior'
+import {
+  injectionClicksDisabled, injectionClicksElements, injectionClicks, injectionOrderMap,
+  CLASS_VCLICK_CURRENT, CLASS_VCLICK_HIDDEN, CLASS_VCLICK_HIDDEN_EXP, CLASS_VCLICK_PRIOR, CLASS_VCLICK_TARGET,
+} from '../constants'
 
 function dirInject<T = unknown>(dir: DirectiveBinding<any>, key: InjectionKey<T> | string, defaultValue?: T): T | undefined {
   return (dir.instance?.$ as any).provides[key as any] ?? defaultValue

@@ -1,10 +1,13 @@
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { InlineConfig, mergeConfig, Plugin } from 'vite'
 import isInstalledGlobally from 'is-installed-globally'
+import resolveGlobal from 'resolve-global'
+import { uniq } from '@antfu/utils'
 import { getIndexHtml } from '../common'
 import { dependencies } from '../../../client/package.json'
 import { ResolvedSlidevOptions } from '../options'
 import { resolveImportPath, toAtFS } from '../utils'
+import { searchForWorkspaceRoot } from '../vite/searchRoot'
 
 const EXCLUDE = [
   '@slidev/shared',
@@ -21,11 +24,7 @@ export function createConfigPlugin(options: ResolvedSlidevOptions): Plugin {
     name: 'slidev:config',
     config(config) {
       const injection: InlineConfig = {
-        define: {
-          __SLIDEV_CLIENT_ROOT__: JSON.stringify(toAtFS(options.clientRoot)),
-          __SLIDEV_HASH_ROUTE__: options.data.config.routerMode === 'hash',
-          __DEV__: options.mode === 'dev' ? 'true' : 'false',
-        },
+        define: getDefine(options),
         resolve: {
           alias: {
             '@slidev/client/': `${toAtFS(options.clientRoot)}/`,
@@ -44,12 +43,22 @@ export function createConfigPlugin(options: ResolvedSlidevOptions): Plugin {
             'prettier/esm/parser-html',
             'prettier/esm/parser-typescript',
             'mermaid/dist/mermaid.min',
+            'vite-plugin-vue-server-ref/client',
           ],
           exclude: EXCLUDE,
         },
         server: {
           fs: {
             strict: true,
+            allow: uniq([
+              searchForWorkspaceRoot(options.userRoot),
+              searchForWorkspaceRoot(options.cliRoot),
+              ...(
+                isInstalledGlobally
+                  ? [dirname(resolveGlobal('@slidev/client/package.json'))]
+                  : []
+              ),
+            ]),
           },
         },
       }
@@ -77,5 +86,15 @@ export function createConfigPlugin(options: ResolvedSlidevOptions): Plugin {
         })
       }
     },
+  }
+}
+
+export function getDefine(options: ResolvedSlidevOptions): Record<string, string> {
+  return {
+    __SLIDEV_CLIENT_ROOT__: JSON.stringify(toAtFS(options.clientRoot)),
+    __SLIDEV_HASH_ROUTE__: JSON.stringify(options.data.config.routerMode === 'hash'),
+    __SLIDEV_FEATURE_DRAWINGS__: JSON.stringify(options.data.config.drawings.enabled === true || options.data.config.drawings.enabled === options.mode),
+    __SLIDEV_FEATURE_DRAWINGS_PERSIST__: JSON.stringify(!!options.data.config.drawings.persist === true),
+    __DEV__: options.mode === 'dev' ? 'true' : 'false',
   }
 }
